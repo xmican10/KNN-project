@@ -20,25 +20,13 @@ Optional: Install the required Python packages from the requirements.txt file.
 pip install -r requirements.txt
 ```
 
-## Download the DAVIS2016 Dataset
+## DAVIS2016 Dataset
 
-Instructions to download the dataset required for training the model:
-
-```bash
-git clone https://github.com/davisvideochallenge/davis.git
-./davis/data/get_davis.sh
-```
-
-We will only need the images.
-
-### Source:
-
-https://davischallenge.org/davis2016/code.html
-https://github.com/davisvideochallenge/davis
+For training, validation and testing we are using A Benchmark Dataset and Evaluation Methodology for Video Object Segmentation\* [DAVIS](https://davischallenge.org/index.html), which is a widely recognized dataset in the field of computer vision, particularly in the area of video object segmentation. It provides a set of high-quality, full-resolution video sequences that are densely annotated for the task of video object segmentation, serving as a benchmark for evaluating algorithms in this domain.
 
 ## Train model
 
-Run the training script with optional arguments for the dataset root directory and number of epochs. By default, the dataset root directory is set to ./davis, and epochs are set to 8.
+Run the training script with optional arguments for the dataset root directory and number of epochs. By default, the dataset root directory is set to ./DAVIS, and epochs are set to 8.
 
 ```bash
 python train.py <dataset_root_dir> <epochs>
