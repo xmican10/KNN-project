@@ -8,16 +8,16 @@ import matplotlib.pyplot as plt
 from matplotlib import colors
 import argparse
 
-import unet
-from davisLoader import DAVIS2016Dataset
+import model.unet as unet
+from davis_loader import DAVIS2016Dataset
 
 ## =============================================================================
 ## ------ Program parser
 parser = argparse.ArgumentParser(description='Train model on DAVIS2016 dataset')
 parser.add_argument('--epochs', type=int, default=8, 
                     help='Number of training epochs (default: 8)')
-parser.add_argument('--dataset-root', type=str, default='./davis', 
-                    help='Root directory for DAVIS2016 dataset (default: \'./davis)\'')
+parser.add_argument('--dataset-root', type=str, default='./DAVIS', 
+                    help='Root directory for DAVIS2016 dataset (default: \'./DAVIS)\'')
 args = parser.parse_args()
 
 ## =============================================================================
@@ -65,12 +65,12 @@ def plot_loss(train_loss, val_loss):
     
 ## =============================================================================
 # --- Set training dataset params
-root_dir = './davis'
+root_dir = args.dataset_root
 action = 'train'
 train_dataset = DAVIS2016Dataset(root_dir=root_dir, action=action)
 
 # --- Set validation dataset params
-root_dir = './davis'
+root_dir = args.dataset_root
 action = 'val'
 val_dataset = DAVIS2016Dataset(root_dir=root_dir, action=action)
 
