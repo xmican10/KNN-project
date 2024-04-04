@@ -5,10 +5,11 @@ import matplotlib.pyplot as plt
 from matplotlib import colors
 import numpy as np
 from PIL import Image
+from tqdm import tqdm
 
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 from davis_loader import DAVIS2016Dataset
-import model.unet as unet
+import model.unet2 as unet
 
 class Eval():
     def __init__(self, args):
@@ -49,7 +50,7 @@ class Eval():
         output_dir = os.path.join(self.output_dir, sample_dir)
         if not os.path.exists(output_dir):
             os.makedirs(output_dir)
-        filename = os.path.join(output_dir, f"{i}.png")
+        filename = os.path.join(output_dir, f"{i:05}.png")
 
         plt.tight_layout()
         plt.savefig(filename)
@@ -61,7 +62,7 @@ class Eval():
         output_dir = os.path.join(self.output_dir, sample_dir)
         if not os.path.exists(output_dir):
             os.makedirs(output_dir)
-        filename = os.path.join(output_dir, f"{i}.png")
+        filename = os.path.join(output_dir, f"{i:05}.png")
     
         threshold = 0.5
         data_binary = (img_array > threshold).astype(np.uint8)
@@ -73,33 +74,41 @@ class Eval():
     def run(self, compare = True):
         # --- Evaluation loop
         last_dir = new_dir = self.get_sample_dir(0)
-        _, prev_frame, curr_frame, prev_annotation, curr_annotation = self.dataset[0]
-        input_tensor = torch.cat((prev_frame, curr_frame, prev_annotation), dim=1)
+        """
+        prev_frame, curr_frame, prev_annotation, curr_annotation = self.dataset[0]
+        input_tensor = torch.cat((prev_frame.unsqueeze(0), curr_frame.unsqueeze(0), prev_annotation.unsqueeze(0)), dim=1)
         outputs = self.model(input_tensor)
         if compare:
             self.plot_images(curr_annotation, outputs, 1, last_dir)
         else:
                 self.save_res(outputs, 1, last_dir)
-        frame_cnt = 2
+        """
+        frame_cnt = 0
+        
+        loop = tqdm(total=len(self.dataset), position=0, desc=f"Creating visual outputs")
         for i in range(len(self.dataset)):
             new_dir = self.get_sample_dir(i)
-            next_frame, prev_frame, curr_frame, prev_annotation, curr_annotation = self.dataset[i]
-            if next_frame:
+            prev_frame, curr_frame, prev_annotation, curr_annotation = self.dataset[i]
+            if (last_dir != new_dir):
                 # Get next couple of frames, because currently prev_frame is from different sequence than curr_frame
+                last_dir = new_dir
                 frame_cnt = 0
                 continue
             if frame_cnt == 0:
                 # New input sequence
-                input_tensor = torch.cat((prev_frame, curr_frame, prev_annotation), dim=1)
-                frame_cnt += 1
+                input_tensor = torch.cat((prev_frame.unsqueeze(0), curr_frame.unsqueeze(0), prev_annotation.unsqueeze(0)), dim=1)
+                #frame_cnt += 1
             else:
-                input_tensor = torch.cat((prev_frame, curr_frame, outputs), dim=1)
+                input_tensor = torch.cat((prev_frame.unsqueeze(0), curr_frame.unsqueeze(0), outputs), dim=1)
             outputs = self.model(input_tensor)
+            
             last_dir = new_dir
             if compare:
                 self.plot_images(curr_annotation, outputs, frame_cnt, last_dir)
             else:
                 self.save_res(outputs, frame_cnt, last_dir)
+                
             frame_cnt += 1
+            loop.update(1)
             
         print('Finished Evaluation')

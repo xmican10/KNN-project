@@ -51,7 +51,7 @@ class DAVIS2016Dataset(Dataset):
         # Apply transform to image
         image_tensor = transform(image)
         # Add batch dimension = 1
-        image_tensor = image_tensor.unsqueeze(0)
+        image_tensor = image_tensor
         
         return image_tensor
         
@@ -63,16 +63,12 @@ class DAVIS2016Dataset(Dataset):
         return prev_frame_path, curr_frame_path, prev_annotation_path, curr_annotation_path
         
     def __getitem__(self, idx, image_size=(128, 128)):
-        next_frame = False
         prev_frame_path, curr_frame_path, prev_annotation_path, curr_annotation_path = self.get_set(idx)
-
         # Check if both frames are from the same sequence
         prev_sequence_name = prev_frame_path.split("/")[4]
         curr_sequence_name = curr_frame_path.split("/")[4]
         if prev_sequence_name != curr_sequence_name:
-            next_frame = True
-            return next_frame, torch.zeros(1,1), torch.zeros(1,1), torch.zeros(1,1), torch.zeros(1,1)
-            #prev_frame_path, curr_frame_path, prev_annotation_path, curr_annotation_path = self.get_set(idx+1)
+            prev_frame_path, curr_frame_path, prev_annotation_path, curr_annotation_path = self.get_set(idx+1)
 
         # Load frames and masks
         curr_frame      = self.img_to_tensor(curr_frame_path, image_size)
@@ -83,4 +79,4 @@ class DAVIS2016Dataset(Dataset):
         if self.transform:
             prev_frame, prev_annotation, curr_frame, curr_annotation = self.transform(prev_frame, prev_annotation, curr_frame, curr_annotation)
 
-        return next_frame, prev_frame, curr_frame, prev_annotation, curr_annotation
+        return prev_frame, curr_frame, prev_annotation, curr_annotation

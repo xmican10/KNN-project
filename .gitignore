@@ -1,3 +1,6 @@
 env/
 .history/
 __pycache__/
+old/
+model/old/
+eval/outputs/

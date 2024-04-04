@@ -7,8 +7,6 @@ def jaccard(g, m):
     # Jaccard index = 1.0 - total match for masks => we want Jaccard index as close as possible to 1.0
     # g - groundtruth
     # m - model predicted mask
-    np.savetxt('m.txt', m, delimiter=',')
-    np.savetxt('g.txt', g, delimiter=',')
     g = g.astype(bool)
     m = m.astype(bool)
     
