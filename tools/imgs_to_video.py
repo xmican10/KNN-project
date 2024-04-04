@@ -18,13 +18,12 @@ fps = args.fps
 
 # ------ Create GIF
 images = [img for img in os.listdir(image_folder) if img.endswith(".png")]
-images.sort()  # Make sure that the images are sorted by filename (if necessary)
+images.sort()
 
 frames = []
 for image in tqdm(images, desc=f"Creating GIF from {image_folder}"):
     img_path = os.path.join(image_folder, image)
     frame = cv2.imread(img_path)
-    # OpenCV uses BGR by default, but imageio uses RGB
     frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
     frames.append(frame)
 
