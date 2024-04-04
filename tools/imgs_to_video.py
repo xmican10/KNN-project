@@ -15,7 +15,7 @@ args = parser.parse_args()
 
 ## ------ Set params
 image_folder = os.path.join(args.dir, args.seq)
-video_name = args.seq+'.avi'
+video_name = args.seq + '.mp4'
 fps = args.fps
 
 ## ------ Create video
@@ -23,7 +23,7 @@ images = [img for img in os.listdir(image_folder) if img.endswith(".png")]
 frame = cv2.imread(os.path.join(image_folder, images[0]))
 height, width, layers = frame.shape
 
-video = cv2.VideoWriter(video_name, cv2.VideoWriter_fourcc(*'DIVX'), fps, (width,height))
+video = cv2.VideoWriter(video_name, cv2.VideoWriter_fourcc(*'mp4v'), fps, (width, height))
 
 loop = tqdm(total=len(images), position=0, desc=f"Creating video from {image_folder}")
 for image in images:

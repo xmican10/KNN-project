@@ -40,13 +40,13 @@ During training, you can monitor hyperparameters by watching `<.pth model name>_
 
 ### Model architecture
 
-Our foundational model utilizes a customized U-Net architecture tailored for object segmentation. This architecture was finely adjusted to enhance its performance. Among various architectures tested, this modified version of U-Net achieved the best evaluation scores, marking it as our superior choice.
+Our foundational model utilizes a customized U-Net architecture tailored for object segmentation. But we slightly adjusted the architecture to enhance its performance for video object segmentation. Among various architectures tested, this modified version of U-Net achieved the best evaluation scores, marking it as our superior choice for baseline model.
 
 ![Custom Unet](media/unet2-arch.png "Our proposed Unet architecture")
 
 ### Baseline evaluation
 
-We assessed our trained U-Net model using our eval.py script and obtained the following results:
+We assessed our trained U-Net model using our `eval.py` script and obtained the following results:
 
 ```
 ------------------------------
@@ -65,6 +65,10 @@ In this section, we present two .mp4 video clips that illustrate the capabilitie
 #### Successful Segmentation
 
 The first video showcases a scenario where our model excels, effectively segmenting the object of interest from the background. This demonstration highlights the model's accuracy and its ability to understand slow scenes, distinguishing the main subject with quite accurate precision.
+
+<video width="320" height="240" controls>
+  <source src="./media/blackswan.mp4" type="video/mp4">
+</video>
 
 #### Limitations in Segmentation
 
