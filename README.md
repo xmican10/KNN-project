@@ -72,3 +72,7 @@ The first video showcases a scenario where our model excels, effectively segment
 
 Conversely, the second video reveals a situation where our model faces challenges.
 ![Sequence GIF](media/bmx-trees.gif)
+
+## Acknowledgments
+
+This project uses portions of code from the DAVIS video segmentation challenge, specifically the `f_boundary.py` script, written by Federico Perazzi and licensed under the BSD License. The original code can be found at: https://github.com/davisvideochallenge/davis/blob/master/python/lib/davis/measures/f_boundary.py
