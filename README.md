@@ -75,4 +75,4 @@ Conversely, the second video reveals a situation where our model faces challenge
 
 ## Acknowledgments
 
-This project uses portions of code from the DAVIS video segmentation challenge, specifically the `f_boundary.py` script, written by Federico Perazzi and licensed under the BSD License. The original code can be found at: https://github.com/davisvideochallenge/davis/blob/master/python/lib/davis/measures/f_boundary.py
+This project incorporates code from "A Benchmark Dataset and Evaluation Methodology for Video Object Segmentation" by Federico Perazzi, available under the BSD License. The original code is used for [describe purpose, e.g., boundary measures evaluation], and can be found at: https://github.com/davisvideochallenge/davis/blob/master/python/lib/davis/measures/f_boundary.py
