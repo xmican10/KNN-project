@@ -66,10 +66,9 @@ In this section, we present two .mp4 video clips that illustrate the capabilitie
 
 The first video showcases a scenario where our model excels, effectively segmenting the object of interest from the background. This demonstration highlights the model's accuracy and its ability to understand slow scenes, distinguishing the main subject with quite accurate precision.
 
-<video width="320" height="240" controls>
-  <source src="./media/blackswan.mp4" type="video/mp4">
-</video>
+![Sequence GIF](media/blackswan.gif)
 
 #### Limitations in Segmentation
 
 Conversely, the second video reveals a situation where our model faces challenges.
+![Sequence GIF](media/bmx-trees.gif)
