@@ -4,7 +4,7 @@ import torch.nn as nn
 import torch
 import numpy as np
 import matplotlib
-matplotlib.use('Agg')  # Pro WSL2: Nastavení Agg backendu pro generování grafů bez GUI
+matplotlib.use('Agg')  # For WSL2: Set Agg backend for generating graphs without GUI
 import matplotlib.pyplot as plt
 from matplotlib import colors
 import argparse
