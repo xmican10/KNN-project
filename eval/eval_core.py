@@ -9,7 +9,7 @@ from tqdm import tqdm
 
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 from davis_loader import DAVIS2016Dataset
-import model.unet2 as unet
+import model.unet_siamese_vgg as model
 
 class Eval():
     def __init__(self, args):
@@ -20,7 +20,7 @@ class Eval():
         self.dataset = DAVIS2016Dataset(root_dir=root_dir, action=action)
         
         # --- Load model
-        self.model = unet.UNet(n_channels=7, n_classes=1)
+        self.model = model.VGG11SiameseUnet()
         self.model.load_state_dict(torch.load(args.model))
         self.model.eval()
 
@@ -96,11 +96,12 @@ class Eval():
                 continue
             if frame_cnt == 0:
                 # New input sequence
-                input_tensor = torch.cat((prev_frame.unsqueeze(0), curr_frame.unsqueeze(0), prev_annotation.unsqueeze(0)), dim=1)
+                #input_tensor = torch.cat((prev_frame.unsqueeze(0), curr_frame.unsqueeze(0), prev_annotation.unsqueeze(0)), dim=1)
                 #frame_cnt += 1
+                outputs = self.model(prev_frame.unsqueeze(0), curr_frame.unsqueeze(0), prev_annotation.unsqueeze(0))
             else:
-                input_tensor = torch.cat((prev_frame.unsqueeze(0), curr_frame.unsqueeze(0), outputs), dim=1)
-            outputs = self.model(input_tensor)
+                #input_tensor = torch.cat((prev_frame.unsqueeze(0), curr_frame.unsqueeze(0), outputs), dim=1)
+                outputs = self.model(prev_frame.unsqueeze(0), curr_frame.unsqueeze(0), outputs)
             
             last_dir = new_dir
             if compare:
