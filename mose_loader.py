@@ -68,8 +68,8 @@ class MOSEDataset(Dataset):
         # Check if both frames are from the same sequence
         prev_sequence_name = prev_frame_path.split("/")[-2]
         curr_sequence_name = curr_frame_path.split("/")[-2]
-        prev_image_name = (prev_frame_path.split("/")[-1]).split("_")[0]
-        curr_image_name = (curr_frame_path.split("/")[-1]).split("_")[0]
+        prev_image_name = (prev_annotation_path.split("/")[-1]).split("_")[0]
+        curr_image_name = (curr_annotation_path.split("/")[-1]).split("_")[0]
 
         if prev_sequence_name != curr_sequence_name or prev_image_name != curr_image_name:
             prev_frame_path, curr_frame_path, prev_annotation_path, curr_annotation_path = self.get_set(idx+1)
