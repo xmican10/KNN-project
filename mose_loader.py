@@ -14,7 +14,7 @@ class MOSEDataset(Dataset):
         list_file = 'ImageSets/'+action_file
         file = os.path.join(root_dir, list_file)
         
-        # Load (image, mask) couples from file in './<root_dir>/ImageSets/480p/'
+        # Load (image, mask) couples from file in './<root_dir>/ImageSets/'
         with open(file, 'r') as file:
             lines = file.readlines()
             for line in lines:
