@@ -10,7 +10,7 @@ from matplotlib import colors
 import argparse
 from tqdm import tqdm
 
-import model.unet_siamese as unet_siamese
+import model.model as model
 
 from train.dice_loss import DiceLoss
 from davis_loader import DAVIS2016Dataset
@@ -97,14 +97,14 @@ val_dataset = DAVIS2016Dataset(root_dir=root_dir, action=action)
 val_dataloader = DataLoader(val_dataset, batch_size=4, shuffle=True)
 ## =============================================================================
 # --- Set training model params
-unet_siamese = unet_siamese.Siamese().to(device)
+model = model.Siamese().to(device)
 if args.resume is not None:
     print("Resume training")
-    unet_siamese.load_state_dict(torch.load(args.resume))
+    model.load_state_dict(torch.load(args.resume))
     
 # Define loss function and optimizer
 loss_f = DiceLoss()
-optimizer = optim.AdamW(unet_siamese.parameters(), lr=1e-5, weight_decay=1e-5)
+optimizer = optim.AdamW(model.parameters(), lr=1e-5, weight_decay=1e-5)
 
 train_loss = []
 val_loss = []
@@ -118,7 +118,7 @@ for epoch in range(1, args.epochs+1):
     val_running_loss = 0.0
     itrT = 0
     
-    unet_siamese.train()
+    model.train()
     loopT = tqdm(total=len(train_dataset)/batch_size, position=0, leave=True, desc=f"Epoch {epoch}/{args.epochs} [Train]")
     for batch_idx, (prev_frame1, curr_frame1, prev_annotation1, curr_annotation1) in enumerate(train_dataloader):
         itrT+=1
@@ -135,7 +135,7 @@ for epoch in range(1, args.epochs+1):
         #input_tensor1 = torch.cat((prev_frame1, curr_frame1, prev_annotation1), dim=1)
         
         # Forward pass 1
-        outputs1 = unet_siamese(prev_frame1, curr_frame1, prev_annotation1)
+        outputs1 = model(prev_frame1, curr_frame1, prev_annotation1)
         
         # Compute loss
         loss = loss_f(outputs1, curr_annotation1).mean()
@@ -152,7 +152,7 @@ for epoch in range(1, args.epochs+1):
     loopT.close()
     
     ## Evaluate model
-    unet_siamese.eval()
+    model.eval()
     itrV = 0
     loopV = tqdm(total=len(val_dataset), position=0, leave=True, desc=f"Epoch {epoch}/{args.epochs} [Val]")
     with torch.no_grad():
@@ -165,7 +165,7 @@ for epoch in range(1, args.epochs+1):
             curr_annotation = curr_annotation.to(device)
             
             #input_tensor = torch.cat((prev_frame, curr_frame, prev_annotation), dim=1)
-            outputs = unet_siamese(prev_frame, curr_frame, prev_annotation)
+            outputs = model(prev_frame, curr_frame, prev_annotation)
 
             loss = loss_f(outputs, curr_annotation).mean()
             val_running_loss += loss.item()
@@ -179,7 +179,7 @@ for epoch in range(1, args.epochs+1):
     # Save checkpoint
     if (epoch % 4 == 0) and (epoch != 0):
         filename = str(epoch)+"_"+args.output_pth
-        save_checkpoint(unet_siamese, filename)
+        save_checkpoint(model, filename)
         print(">> Checkpoint of epoch ", str(epoch), " saved.")
     
     # Print and plot statistics
@@ -189,4 +189,4 @@ for epoch in range(1, args.epochs+1):
     plot_loss(train_loss, val_loss)
 
 print('Finished Training')
-save_checkpoint(unet_siamese, args.output_pth)
+save_checkpoint(model, args.output_pth)

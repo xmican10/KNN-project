@@ -88,6 +88,7 @@ class Eval():
         loop = tqdm(total=len(self.dataset), position=0, desc=f"Creating visual outputs")
         for i in range(len(self.dataset)):
             new_dir = self.get_sample_dir(i)
+            last_dir = self.get_sample_dir(i+1)
             prev_frame, curr_frame, prev_annotation, curr_annotation = self.dataset[i]
             if (last_dir != new_dir):
                 # Get next couple of frames, because currently prev_frame is from different sequence than curr_frame
@@ -102,8 +103,8 @@ class Eval():
             else:
                 #input_tensor = torch.cat((prev_frame.unsqueeze(0), curr_frame.unsqueeze(0), outputs), dim=1)
                 outputs = self.model(prev_frame.unsqueeze(0), curr_frame.unsqueeze(0), outputs)
-            
-            last_dir = new_dir
+            #print(f"New: {new_dir}, Last: {last_dir}")
+            #last_dir = new_dir
             if compare:
                 self.plot_images(curr_annotation, outputs, frame_cnt, last_dir)
             else:

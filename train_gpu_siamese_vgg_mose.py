@@ -13,7 +13,7 @@ from tqdm import tqdm
 import model.unet_siamese_vgg as model
 
 from train.dice_loss import DiceLoss
-from davis_loader import DAVIS2016Dataset
+from mose_loader import MOSEDataset, MOSEValidDataset
 
 ## =============================================================================
 ## ------ Init CUDA
@@ -30,8 +30,8 @@ parser.add_argument('--epochs', type=int, default=32,
                     help='Number of training epochs (default: 32)')
 parser.add_argument('--output-pth', type=str, default='model.pth', 
                     help='Output model name (default: \'model.pth)\'')
-parser.add_argument('--dataset-root', type=str, default='./DAVIS', 
-                    help='Root directory for DAVIS2016 dataset (default: \'./DAVIS)\'')
+parser.add_argument('--dataset-root', type=str, default='../MOSE', 
+                    help='Root directory for MOSE dataset (default: \'../MOSE)\'')
 parser.add_argument('--resume', type=str, default=None, 
                     help='Path to saved model for resuming training. '
                          'If not specified, new model will be trained.')
@@ -86,15 +86,15 @@ def save_checkpoint(model, filename="model.pth"):
 # --- Set training dataset params
 root_dir = args.dataset_root
 action = 'train'
-batch_size = 8
-train_dataset = DAVIS2016Dataset(root_dir=root_dir, action=action)
+batch_size = 16
+train_dataset = MOSEDataset(root_dir=root_dir, action=action)
 train_dataloader = DataLoader(train_dataset, batch_size=batch_size, shuffle=True)
 
 # --- Set validation dataset params
 root_dir = args.dataset_root
-action = 'val'
-batch_size2 = 4
-val_dataset = DAVIS2016Dataset(root_dir=root_dir, action=action)
+action = 'valid'
+batch_size2 = 16
+val_dataset = MOSEDataset(root_dir=root_dir, action=action)
 val_dataloader = DataLoader(val_dataset, batch_size=batch_size2, shuffle=True)
 ## =============================================================================
 # --- Set training model params
@@ -105,7 +105,8 @@ if args.resume is not None:
     
 # Define loss function and optimizer
 loss_f = DiceLoss()
-optimizer = optim.AdamW(model.parameters(), lr=0.0008796267692200899, weight_decay=0.000940943)
+#optimizer = optim.AdamW(model.parameters(), lr=1.3798384386932625e-05, weight_decay=0.0002869552100379619)
+optimizer = optim.AdamW(model.parameters(), lr=1e-04, weight_decay=1e-3)
 
 train_loss = []
 val_loss = []
@@ -116,7 +117,6 @@ torch.backends.cudnn.benchmark = True
 for epoch in range(1, args.epochs+1):    
     ## Run epoch training and validation
     train_running_loss = 0.0
-    val_running_loss = 0.0
     itrT = 0
     
     model.train()
@@ -124,10 +124,10 @@ for epoch in range(1, args.epochs+1):
     for batch_idx, (prev_frame1, curr_frame1, prev_annotation1, curr_annotation1) in enumerate(train_dataloader):
         itrT+=1
         
-        prev_frame1 = prev_frame1.to(device)
-        curr_frame1 = curr_frame1.to(device)
-        prev_annotation1 = prev_annotation1.to(device)
-        curr_annotation1 = curr_annotation1.to(device)
+        prev_frame1 = prev_frame1#.to(device)
+        curr_frame1 = curr_frame1#.to(device)
+        prev_annotation1 = prev_annotation1#.to(device)
+        curr_annotation1 = curr_annotation1#.to(device)
 
         # Zero the parameter gradients [GPU]
         optimizer.zero_grad(set_to_none=True)
@@ -153,26 +153,28 @@ for epoch in range(1, args.epochs+1):
     loopT.close()
     
     ## Evaluate model
-    model.eval()
-    itrV = 0
-    loopV = tqdm(total=len(val_dataset)/batch_size2, position=0, leave=True, desc=f"Epoch {epoch}/{args.epochs} [Val]")
-    with torch.no_grad():
-        for batch_idx, (prev_frame, curr_frame, prev_annotation, curr_annotation) in enumerate(val_dataloader):
-            itrV += 1
-            
-            prev_frame = prev_frame.to(device)
-            curr_frame = curr_frame.to(device)
-            prev_annotation = prev_annotation.to(device)
-            curr_annotation = curr_annotation.to(device)
-            
-            #input_tensor = torch.cat((prev_frame, curr_frame, prev_annotation), dim=1)
-            outputs = model(prev_frame, curr_frame, prev_annotation)
+    if epoch % 4 == 0:
+        model.eval()
+        itrV = 0
+        val_running_loss = 0.0
+        loopV = tqdm(total=len(val_dataset)/batch_size2, position=0, leave=True, desc=f"Epoch {epoch}/{args.epochs} [Val]")
+        with torch.no_grad():
+            for batch_idx, (prev_frame, curr_frame, prev_annotation, curr_annotation) in enumerate(val_dataloader):
+                itrV += 1
+                
+                prev_frame = prev_frame#.to(device)
+                curr_frame = curr_frame#.to(device)
+                prev_annotation = prev_annotation#.to(device)
+                curr_annotation = curr_annotation#.to(device)
+                
+                #input_tensor = torch.cat((prev_frame, curr_frame, prev_annotation), dim=1)
+                outputs = model(prev_frame, curr_frame, prev_annotation)
 
-            loss = loss_f(outputs, curr_annotation).mean()
-            val_running_loss += loss.item()
-            loopV.update(1)
-            
-    loopV.close()
+                loss = loss_f(outputs, curr_annotation).mean()
+                val_running_loss += loss.item()
+                loopV.update(1)
+                
+        loopV.close()
     train_loss.append(train_running_loss/itrT)
     val_loss.append(val_running_loss/itrV)
     

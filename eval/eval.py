@@ -38,7 +38,7 @@ dataset = DAVIS2016Dataset(root_dir=root_dir, action=action)
 num_samples = len(dataset.samples)
 print("Dataset len:", num_samples)
 
-# --- Load dir with moodel output images
+# --- Load dir with model output images
 outputs = []
 for root, dirs, files in os.walk(args.res_dir):
     for file in files:
@@ -50,10 +50,15 @@ if num_samples != num_outputs:
     print(f"ERROR: {args.res_dir} contains unexpected number of samples {num_outputs}")
     sys.exit(1)
 
+# --- Sort folders contents
+dataset.samples.sort()
+outputs.sort()
+
 # --- Run evaluation
 iou = f = 0
 loop = tqdm(total=num_samples, position=0, desc=f"Evaluation")
 for i in range(num_samples):
+    print(dataset.samples[i][1], outputs[i])
     # Groundtruth mask
     g = np.array(Image.open(dataset.samples[i][1]).convert('L').resize(img_size, Image.LANCZOS))
     # Predicted mask

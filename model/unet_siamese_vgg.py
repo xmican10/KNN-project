@@ -45,11 +45,14 @@ class DecoderBlock(nn.Module):
         return self.block(x)
 
 class VGG11SiameseUnet(nn.Module):
-    def __init__(self, n_channels=4, n_classes=1, num_filters=32):
+    def __init__(self, n_channels=4, n_classes=1, num_filters=32, pretrained=True):
         super(VGG11SiameseUnet, self).__init__()
 
-        # Load preatrained VGG11, dont load the classifier part
-        vgg11 = models.vgg11(weights=models.VGG11_Weights.IMAGENET1K_V1).features
+        if pretrained:
+            # Load preatrained VGG11, dont load the classifier part
+            vgg11 = models.vgg11(weights=models.VGG11_Weights.IMAGENET1K_V1).features
+        else:
+            vgg11 = models.vgg11(weights=None).features
         # Modify the first layer so it accepts 4 channels
         first_conv = nn.Conv2d(n_channels, 64, kernel_size=3, padding=1)
         self.vgg11 = nn.Sequential(
@@ -59,14 +62,14 @@ class VGG11SiameseUnet(nn.Module):
 
         dropout_rate = 0.0
 
-        self.conv1 = nn.Sequential(self.vgg11[0], nn.ReLU(inplace=True), nn.Dropout(dropout_rate))
-        self.conv2 = nn.Sequential(self.vgg11[3], nn.ReLU(inplace=True), nn.Dropout(dropout_rate))
-        self.conv3s = nn.Sequential(self.vgg11[6], nn.ReLU(inplace=True), nn.Dropout(dropout_rate))
-        self.conv3 = nn.Sequential(self.vgg11[8], nn.ReLU(inplace=True), nn.Dropout(dropout_rate))
-        self.conv4s = nn.Sequential(self.vgg11[11], nn.ReLU(inplace=True), nn.Dropout(dropout_rate))
-        self.conv4 = nn.Sequential(self.vgg11[13], nn.ReLU(inplace=True), nn.Dropout(dropout_rate))
-        self.conv5s = nn.Sequential(self.vgg11[16], nn.ReLU(inplace=True), nn.Dropout(dropout_rate))
-        self.conv5 = nn.Sequential(self.vgg11[18], nn.ReLU(inplace=True), nn.Dropout(dropout_rate))
+        self.conv1 = nn.Sequential(self.vgg11[0], nn.BatchNorm2d(self.vgg11[0].out_channels), nn.ReLU(inplace=True), nn.Dropout(dropout_rate))
+        self.conv2 = nn.Sequential(self.vgg11[3], nn.BatchNorm2d(self.vgg11[3].out_channels), nn.ReLU(inplace=True), nn.Dropout(dropout_rate))
+        self.conv3s = nn.Sequential(self.vgg11[6], nn.BatchNorm2d(self.vgg11[6].out_channels), nn.ReLU(inplace=True), nn.Dropout(dropout_rate))
+        self.conv3 = nn.Sequential(self.vgg11[8], nn.BatchNorm2d(self.vgg11[8].out_channels), nn.ReLU(inplace=True), nn.Dropout(dropout_rate))
+        self.conv4s = nn.Sequential(self.vgg11[11], nn.BatchNorm2d(self.vgg11[11].out_channels), nn.ReLU(inplace=True), nn.Dropout(dropout_rate))
+        self.conv4 = nn.Sequential(self.vgg11[13], nn.BatchNorm2d(self.vgg11[13].out_channels), nn.ReLU(inplace=True), nn.Dropout(dropout_rate))
+        self.conv5s = nn.Sequential(self.vgg11[16], nn.BatchNorm2d(self.vgg11[16].out_channels), nn.ReLU(inplace=True), nn.Dropout(dropout_rate))
+        self.conv5 = nn.Sequential(self.vgg11[18], nn.BatchNorm2d(self.vgg11[18].out_channels), nn.ReLU(inplace=True), nn.Dropout(dropout_rate))
         self.pool = nn.MaxPool2d(2)
 
         self.center = DecoderBlock(
@@ -89,10 +92,13 @@ class VGG11SiameseUnet(nn.Module):
         self.final = nn.Conv2d(num_filters, n_classes, kernel_size=1)
 
     def forward(self, F_t1, F_t, M_t1):
+        # F_t1 ... F(t-1)
+        # F_t ... F(t)
+        # M_t1 ... M(t-1)
         F_t1_with_mask = torch.cat((F_t1, M_t1), dim=1)
         F_t_with_mask = torch.cat((F_t, M_t1), dim=1)
         
-        # Encoder F(t-1)
+        ## Encoder F(t-1)
         conv1_1 = self.conv1(F_t1_with_mask)
         conv2_1 = self.conv2(self.pool(conv1_1))
         conv3s_1 = self.conv3s(self.pool(conv2_1))
@@ -102,7 +108,7 @@ class VGG11SiameseUnet(nn.Module):
         conv5s_1 = self.conv5s(self.pool(conv4_1))
         conv5_1 = self.conv5(conv5s_1)
         
-        # Encoder F(t)
+        ## Encoder F(t)
         conv1_2 = self.conv1(F_t_with_mask)
         conv2_2 = self.conv2(self.pool(conv1_2))
         conv3s_2 = self.conv3s(self.pool(conv2_2))
@@ -112,14 +118,18 @@ class VGG11SiameseUnet(nn.Module):
         conv5s_2 = self.conv5s(self.pool(conv4_2))
         conv5_2 = self.conv5(conv5s_2)
 
-        # Fuze encoders
+        ## Fuze encoders
+        # Concatenation
         #x5 = torch.cat((x5_1, x5_2), dim=1)
+        # Averaging
         x5 = 0.5 * conv5_1 + 0.5 * conv5_2
-        #print(x5.size())
-        # Bottleneck
+        # Min-pooling
+        #x5 = torch.min(conv5_1, conv5_2)
+        
+        ## Bottleneck
         center = self.center(self.pool(x5))
 
-        # Decoder (we want to segment F(t))        
+        ## Decoder (we want to segment F(t))        
         x = self.dec5(torch.cat([center, conv5_2], 1))
         x= self.dec4(torch.cat([x, conv4_2], 1))
         x = self.dec3(torch.cat([x, conv3_2], 1))
