@@ -103,7 +103,7 @@ In this section, we present two .mp4 video clips that illustrate the capabilitie
 
 #### Successful Segmentation
 
-The first video showcases a scenario where our model excels, effectively segmenting the object of interest from the background.
+The first video showcases a scenario where our model effectively segmentints the object of interest from the background.
 
 ![Sequence GIF](media/blackswan.gif)
 
