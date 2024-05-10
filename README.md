@@ -47,7 +47,7 @@ These paths are sequenced consecutively to maintain the integrity of the entire 
 
 ## DAVIS2016 Dataset
 
-For evaluation g we used A Benchmark Dataset and Evaluation Methodology for Video Object Segmentation\* [DAVIS](https://davischallenge.org/index.html), which is a widely recognized dataset in the field of computer vision, particularly in the area of video object segmentation. It provides a set of high-quality, full-resolution video sequences that are densely annotated for the task of video object segmentation, serving as a benchmark for evaluating algorithms in this domain.
+For evaluation we used A Benchmark Dataset and Evaluation Methodology for Video Object Segmentation\* [DAVIS](https://davischallenge.org/index.html), which is a widely recognized dataset in the field of computer vision, particularly in the area of video object segmentation. It provides a set of high-quality, full-resolution video sequences that are densely annotated for the task of video object segmentation, serving as a benchmark for evaluating algorithms in this domain.
 
 For evaluation we are using Jaccard index, F-score and their mean.
 
@@ -56,34 +56,34 @@ For evaluation we are using Jaccard index, F-score and their mean.
 Run the training script with optional arguments for the dataset root directory and number of epochs. By default, the dataset root directory is set to ./DAVIS, and epochs are set to 32.
 
 ```bash
-python train_gpu.py --dataset-root <dataset_root_dir> --output-pth <.pth model name> --epochs <epochs> [--resume <.pth model file>]
+python train_gpu.py --dataset-root <dataset_root_dir> --output-pth <.pth model name> --epochs <epochs> [--resume <.pth model file>] --lr <lr> --w_decay <weight_decay>
 ```
 
 During training, you can monitor hyperparameters by watching `<.pth model name>_loss.png`, which is updated after each epoch.
 
-## Baseline solution
+## Final solution
 
 ### Model architecture
 
-Our foundational model utilizes a customized U-Net architecture tailored for object segmentation. But we slightly adjusted the architecture to enhance its performance for video object segmentation. Among various architectures tested, this modified version of U-Net achieved the best evaluation scores, marking it as our superior choice for baseline model.
+In our final model we integrated a U-Net architecture with a Siamese VGG11 encoder to enhance precision in feature extraction. This setup exploited the Siamese network's capability for detailed comparative analysis, alongside the robust feature extraction strengths of the VGG11 model. We opted to average the outputs from the dual encoders, a technique that proved effective in stabilizing feature representation and reducing noise. Additionally, we explored other methods of combining encoder outputs, such as Max pooling and Min pooling, but these approaches yielded inferior results. Experiments with a VGG16 encoder were also conducted; however, the Siamese VGG11 configuration demonstrated superior performance in our final evaluations.
 
 ![Custom Unet](media/unet2-arch.png "Our proposed Unet architecture")
 
 ### Baseline evaluation
 
-We assessed our trained U-Net model using our `eval.py` script and obtained the following results:
+We assessed our trained model using our `eval.py` script and obtained the following results:
 
 ```
 ------------------------------
 Statistics      |      Value
 ------------------------------
-J mean          |     37.16 %
-F mean          |     41.91 %
-J&F mean        |     39.53 %
+J mean          |     51.54 %
+F mean          |     54.98 %
+J&F mean        |     53.26 %
 ------------------------------
 ```
 
-### Baseline perfmormance
+### Final perfmormance
 
 In this section, we present two .mp4 video clips that illustrate the capabilities and limitations of our model using sequences from the DAVIS2016 dataset.
 
