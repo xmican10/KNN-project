@@ -31,7 +31,7 @@ if args.res_dir is None:
         sys.exit(1)
 
 # --- Set validation dataset params
-img_size = (128,128)
+img_size = (256,256)
 root_dir = args.dataset_root
 action = args.mode
 dataset = DAVIS2016Dataset(root_dir=root_dir, action=action)
@@ -58,7 +58,7 @@ outputs.sort()
 iou = f = 0
 loop = tqdm(total=num_samples, position=0, desc=f"Evaluation")
 for i in range(num_samples):
-    print(dataset.samples[i][1], outputs[i])
+    #print(dataset.samples[i][1], outputs[i])
     # Groundtruth mask
     g = np.array(Image.open(dataset.samples[i][1]).convert('L').resize(img_size, Image.LANCZOS))
     # Predicted mask

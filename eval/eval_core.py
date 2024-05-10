@@ -13,6 +13,15 @@ import model.unet_siamese_vgg11 as model
 
 class Eval():
     def __init__(self, args):
+        ## =============================================================================
+        ## ------ Init CUDA
+        if torch.cuda.is_available():
+            print("CUDA is available. Training on GPU.")
+        else:
+            print("CUDA is not available. Training on CPU.")
+        self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+
+        ## =============================================================================
         self.output_dir = args.output_dir
         # --- Set validation dataset params
         root_dir = args.dataset_root
@@ -20,7 +29,7 @@ class Eval():
         self.dataset = DAVIS2016Dataset(root_dir=root_dir, action=action)
         
         # --- Load model
-        self.model = model.VGG11SiameseUnet()
+        self.model = model.VGG11SiameseUnet().to(self.device)
         self.model.load_state_dict(torch.load(args.model))
         self.model.eval()
 
@@ -72,43 +81,42 @@ class Eval():
         image.save(filename)
         
     def run(self, compare = True):
+        torch.backends.cudnn.benchmark = True
         # --- Evaluation loop
         last_dir = new_dir = self.get_sample_dir(0)
-        """
-        prev_frame, curr_frame, prev_annotation, curr_annotation = self.dataset[0]
-        input_tensor = torch.cat((prev_frame.unsqueeze(0), curr_frame.unsqueeze(0), prev_annotation.unsqueeze(0)), dim=1)
-        outputs = self.model(input_tensor)
-        if compare:
-            self.plot_images(curr_annotation, outputs, 1, last_dir)
-        else:
-                self.save_res(outputs, 1, last_dir)
-        """
         frame_cnt = 0
         
         loop = tqdm(total=len(self.dataset), position=0, desc=f"Creating visual outputs")
         for i in range(len(self.dataset)):
             new_dir = self.get_sample_dir(i)
             last_dir = self.get_sample_dir(i+1)
+            
             prev_frame, curr_frame, prev_annotation, curr_annotation = self.dataset[i]
+            
+            prev_frame = prev_frame.to(self.device, non_blocking=True)
+            curr_frame = curr_frame.to(self.device, non_blocking=True)
+            prev_annotation = prev_annotation.to(self.device, non_blocking=True)
+            curr_annotation = curr_annotation.to(self.device, non_blocking=True)
+            
             if (last_dir != new_dir):
-                # Get next couple of frames, because currently prev_frame is from different sequence than curr_frame
                 last_dir = new_dir
                 frame_cnt = 0
+                del prev_frame, curr_frame, prev_annotation, curr_annotation
+                torch.cuda.empty_cache()
                 continue
+            
             if frame_cnt == 0:
-                # New input sequence
-                #input_tensor = torch.cat((prev_frame.unsqueeze(0), curr_frame.unsqueeze(0), prev_annotation.unsqueeze(0)), dim=1)
-                #frame_cnt += 1
                 outputs = self.model(prev_frame.unsqueeze(0), curr_frame.unsqueeze(0), prev_annotation.unsqueeze(0))
             else:
-                #input_tensor = torch.cat((prev_frame.unsqueeze(0), curr_frame.unsqueeze(0), outputs), dim=1)
-                outputs = self.model(prev_frame.unsqueeze(0), curr_frame.unsqueeze(0), outputs)
-            #print(f"New: {new_dir}, Last: {last_dir}")
-            #last_dir = new_dir
+                outputs = self.model(prev_frame.unsqueeze(0), curr_frame.unsqueeze(0), outputs.detach().to(self.device))
+            outputs = outputs.cpu()
             if compare:
                 self.plot_images(curr_annotation, outputs, frame_cnt, last_dir)
             else:
                 self.save_res(outputs, frame_cnt, last_dir)
+            prev_frame.cpu(), curr_frame.cpu(), prev_annotation.cpu(), curr_annotation.cpu()
+            del prev_frame, curr_frame, prev_annotation, curr_annotation
+            torch.cuda.empty_cache()
                 
             frame_cnt += 1
             loop.update(1)
