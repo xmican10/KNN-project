@@ -71,7 +71,7 @@ In our final model we integrated a U-Net architecture with a Siamese VGG11 encod
 
 ### Evaluation
 
-We assessed our final trained model using our `eval.py` script and obtained the following results:
+We conducted a thorough evaluation of our final trained model using the `eval.py` script, and here are the summarized results:
 
 ```
 ------------------------------
@@ -83,7 +83,8 @@ J&F mean        |     53.26 %
 ------------------------------
 ```
 
-for comparrison this is our baseline evaluation:
+For comparison, the results from our baseline model evaluation were as follows:
+
 ```
 ------------------------------
 Statistics      |      Value
@@ -94,19 +95,21 @@ J&F mean        |     39.53 %
 ------------------------------
 ```
 
+The evaluation shows that our final model significantly outperformed the baseline across all metrics, demonstrating improvements of 14.38 percentage points for the Jaccard Index, 13.07 percentage points for the Boundary F-score, and 13.73 percentage points in the combined J&F mean score. These results highlight the effectiveness of the enhancements incorporated into the final model.
+
 ### Final perfmormance
 
 In this section, we present two .mp4 video clips that illustrate the capabilities and limitations of our model using sequences from the DAVIS2016 dataset.
 
 #### Successful Segmentation
 
-The first video showcases a scenario where our model excels, effectively segmenting the object of interest from the background. This demonstration highlights the model's accuracy and its ability to understand slow scenes, distinguishing the main subject with quite accurate precision.
+The first video showcases a scenario where our model excels, effectively segmenting the object of interest from the background.
 
 ![Sequence GIF](media/blackswan.gif)
 
 #### Limitations in Segmentation
 
-Conversely, the second video reveals a situation where our model faces challenges.
+Conversely, the second video reveals a situation where our model faces challenges, but the segmentation definitely outperforms our baseline model.
 ![Sequence GIF](media/bmx-trees.gif)
 
 ## Acknowledgments
