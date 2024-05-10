@@ -20,9 +20,34 @@ Optional: Install the required Python packages from the requirements.txt file.
 pip install -r requirements.txt
 ```
 
+## MOSE Dataset
+For training and validation, we utilized the MOSE dataset\* [MOSE](https://github.com/henghuiding/MOSE-api), which is originally designed for multiple object segmentation tracking and includes a large dataset of sequences and objects. For this project, which is focused on single object segmentation tracking, we adapted the dataset by converting multi-object annotated frames into binary frames. Each binary frame highlights only one object. This modification process isolates individual objects into separate video sequences, resulting in multiple sequences within the same video clip, each dedicated to tracking a different object.
+
+The script is available in `MOSE/MOSEDataPre.py` and can be executed by the following command:
+
+```bash
+python3 ./MOSE/MOSEDataPre.py -d [directory]
+```
+
+The argument `-d [directory]` specifies the location where the MOSE dataset is stored. This script creates new directories `/Annotations`, `/JPEGImages`, based on the original structure with additional `/ImageSets`.
+
+`/JPEGImages` includes the original sequences, and `/Annotations` contains the annotations for each sequence. Each annotation sequence consists of binary images used to track different objects. Paths to each sequence are stored in `ImageSets/valid.txt` in the format:
+```
+original_0.jpg, annotate_0_obj0.png
+original_1.jpg, annotate_1_obj0.png
+
+... 
+
+original_0.jpg, annotate_0_obj1.png
+original_1.jpg, annotate_1_obj1.png
+```
+
+These paths are sequenced consecutively to maintain the integrity of the entire sequence.
+
+
 ## DAVIS2016 Dataset
 
-For training, validation and testing we used A Benchmark Dataset and Evaluation Methodology for Video Object Segmentation\* [DAVIS](https://davischallenge.org/index.html), which is a widely recognized dataset in the field of computer vision, particularly in the area of video object segmentation. It provides a set of high-quality, full-resolution video sequences that are densely annotated for the task of video object segmentation, serving as a benchmark for evaluating algorithms in this domain.
+For evaluation g we used A Benchmark Dataset and Evaluation Methodology for Video Object Segmentation\* [DAVIS](https://davischallenge.org/index.html), which is a widely recognized dataset in the field of computer vision, particularly in the area of video object segmentation. It provides a set of high-quality, full-resolution video sequences that are densely annotated for the task of video object segmentation, serving as a benchmark for evaluating algorithms in this domain.
 
 For evaluation we are using Jaccard index, F-score and their mean.
 
