@@ -91,7 +91,8 @@ Statistics      |      Value
 J mean          |     37.16 %
 F mean          |     41.91 %
 J&F mean        |     39.53 %
-------------------------------```
+------------------------------
+```
 
 ### Final perfmormance
 
