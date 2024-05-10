@@ -9,7 +9,7 @@ from tqdm import tqdm
 
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 from davis_loader import DAVIS2016Dataset
-import model.unet_siamese_vgg as model
+import model.unet_siamese_vgg11 as model
 
 class Eval():
     def __init__(self, args):
