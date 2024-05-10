@@ -69,9 +69,9 @@ In our final model we integrated a U-Net architecture with a Siamese VGG11 encod
 
 ![Custom Unet](media/final-model.png "Our final model architecture")
 
-### Baseline evaluation
+### Evaluation
 
-We assessed our trained model using our `eval.py` script and obtained the following results:
+We assessed our final trained model using our `eval.py` script and obtained the following results:
 
 ```
 ------------------------------
@@ -82,6 +82,16 @@ F mean          |     54.98 %
 J&F mean        |     53.26 %
 ------------------------------
 ```
+
+for comparrison this is our baseline evaluation:
+```
+------------------------------
+Statistics      |      Value
+------------------------------
+J mean          |     37.16 %
+F mean          |     41.91 %
+J&F mean        |     39.53 %
+------------------------------```
 
 ### Final perfmormance
 
