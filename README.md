@@ -107,6 +107,8 @@ The first video showcases a scenario where our model effectively segmentints the
 
 ![Sequence GIF](media/blackswan.gif)
 
+![Sequence GIF](media/car-roundabout.gif)
+
 #### Limitations in Segmentation
 
 Conversely, the second video reveals a situation where our model faces challenges, but the segmentation definitely outperforms our baseline model.
