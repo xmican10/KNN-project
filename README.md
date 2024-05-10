@@ -67,7 +67,7 @@ During training, you can monitor hyperparameters by watching `<.pth model name>_
 
 In our final model we integrated a U-Net architecture with a Siamese VGG11 encoder to enhance precision in feature extraction. This setup exploited the Siamese network's capability for detailed comparative analysis, alongside the robust feature extraction strengths of the VGG11 model. We opted to average the outputs from the dual encoders, a technique that proved effective in stabilizing feature representation and reducing noise. Additionally, we explored other methods of combining encoder outputs, such as Max pooling and Min pooling, but these approaches yielded inferior results. Experiments with a VGG16 encoder were also conducted; however, the Siamese VGG11 configuration demonstrated superior performance in our final evaluations.
 
-![Custom Unet](media/unet2-arch.png "Our proposed Unet architecture")
+![Custom Unet](media/final-model.png "Our final model architecture")
 
 ### Baseline evaluation
 
