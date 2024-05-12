@@ -95,7 +95,7 @@ J&F mean        |     39.53 %
 ------------------------------
 ```
 
-The evaluation shows that our final model significantly outperformed the baseline across all metrics, demonstrating improvements of 19.34 percentage points for the Jaccard Index, 20.51 percentage points for the Boundary F-score, and 19.93 percentage points in the combined $\mathcal{J\&F}$ mean score. These results highlight the effectiveness of the enhancements incorporated into the final model.
+The evaluation shows that our final model significantly outperformed the baseline across all metrics, demonstrating improvements of 19.34 percentage points for the Jaccard Index, 20.51 percentage points for the Boundary F-score, and 19.93 percentage points in the combined J\&F mean score. These results highlight the effectiveness of the enhancements incorporated into the final model.
 
 ### Final perfmormance
 
