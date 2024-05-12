@@ -77,9 +77,9 @@ We conducted a thorough evaluation of our final trained model using the `eval.py
 ------------------------------
 Statistics      |      Value
 ------------------------------
-J mean          |     51.54 %
-F mean          |     54.98 %
-J&F mean        |     53.26 %
+J mean          |     56.50 %
+F mean          |     64.42 %
+J&F mean        |     59.46 %
 ------------------------------
 ```
 
